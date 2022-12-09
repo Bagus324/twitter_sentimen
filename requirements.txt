@@ -1,0 +1,12 @@
+gensim==4.2.0
+keras==2.10.0
+matplotlib==3.5.1
+nltk==3.7
+numpy==1.22.2
+pandas==1.4.0
+pytorch_lightning==1.5.10
+scikit_learn==1.2.0
+torch==1.11.0+cu113
+torchmetrics==0.7.2
+tqdm==4.62.3
+transformers==4.22.2
