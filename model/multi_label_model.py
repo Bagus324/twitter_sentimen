@@ -35,7 +35,7 @@ class MultiLabelModel(pl.LightningModule):
         random.seed(43)
 
         self.criterion = nn.BCELoss()
-        self.acc = tc.MultiLabelAccuracy(num_classes=num_classes, average="micro")
+        self.acc = tc.MultilabelAccuracy(num_classes=num_classes, average="micro")
 
         ks = 3
 
