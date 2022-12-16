@@ -12,6 +12,8 @@ from sklearn.metrics import classification_report
 from transformers import BertModel
 
 from torchmetrics import AUROC
+from torchmetrics import classification as tc
+from torchmetrics.classification import MultilabelAccuracy
 
 class MultiLabelModel(pl.LightningModule):
     def __init__(self,  
@@ -33,6 +35,7 @@ class MultiLabelModel(pl.LightningModule):
         random.seed(43)
 
         self.criterion = nn.BCELoss()
+        self.acc = tc.MultiLabelAccuracy(num_classes=num_classes, average="micro")
 
         ks = 3
 
@@ -85,10 +88,11 @@ class MultiLabelModel(pl.LightningModule):
                    attention_mask = x_attention_mask)
 
         loss = self.criterion(out, y.float())
+        acc = self.acc(out, y.float())
 
-        self.log("train_loss", loss)
+        self.log({"train_loss" : loss, "train_acc" : acc})
         
-        return {"loss": loss, "predictions": out, "labels": y}
+        return {"loss": loss, "predictions": out, "labels": y, "acc" : acc}
         
     def validation_step(self, valid_batch, batch_idx):
         x_input_ids, x_token_type_ids, x_attention_mask, y = valid_batch
@@ -98,9 +102,9 @@ class MultiLabelModel(pl.LightningModule):
                    attention_mask = x_attention_mask)
         
         loss = self.criterion(out.cpu(), y.float().cpu())
-
-        self.log("val_loss", loss)
-
+        acc = self.acc(out, y.float().cpu())
+        self.log({"val_loss" : loss, "val_acc" : acc})
+        
         return loss
 
     def predict_step(self, test_batch, batch_idx):
@@ -110,7 +114,7 @@ class MultiLabelModel(pl.LightningModule):
                    attention_mask = x_attention_mask)
         
         loss = self.criterion(out.cpu(), y.float().cpu())
-
+        
         return out
 
 

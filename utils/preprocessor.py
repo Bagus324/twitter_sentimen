@@ -269,10 +269,6 @@ class Preprocessor(pl.LightningDataModule):
         tensor_dataset = TensorDataset(x_input_ids, x_token_type_ids, x_attention_mask, y)
         train_tensor_dataset, test_tensor_dataset = torch.utils.data.random_split(tensor_dataset, [round(len(x_input_ids) * 0.8), round(len(x_input_ids) * 0.2)])
         train_tensor_dataset, valid_tensor_dataset = torch.utils.data.random_split(train_tensor_dataset, [round(train_valid_length * 0.9), round(train_valid_length * 0.1)])
-        if not os.path.exists(f"preprocessed/train.pt") and not os.path.exists(f"preprocessed/test.pt"):
-            torch.save(train_tensor_dataset, f"preprocessed/train.pt")
-            torch.save(test_tensor_dataset, f"preprocessed/test.pt")
-            torch.save(valid_tensor_dataset, f"preprocessed/valid.pt")
         return train_tensor_dataset, test_tensor_dataset, valid_tensor_dataset
 
         
