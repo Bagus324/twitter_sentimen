@@ -12,7 +12,7 @@ from sklearn.metrics import classification_report
 from transformers import BertModel
 
 from torchmetrics import AUROC
-from torchmetrics import Accuracy
+# from torchmetrics import Accuracy
 
 class MultiLabelModel(pl.LightningModule):
     def __init__(self,  
@@ -34,7 +34,6 @@ class MultiLabelModel(pl.LightningModule):
         random.seed(43)
 
         self.criterion = nn.BCELoss()
-        self.acc =  Accuracy(num_classes=num_classes, average="micro")
 
         ks = 3
 
@@ -86,12 +85,14 @@ class MultiLabelModel(pl.LightningModule):
                    token_type_ids = x_token_type_ids,
                    attention_mask = x_attention_mask)
 
-        loss = self.criterion(out, y.float())
-        acc = self.acc(out, y.float())
+        # preds = torch.argmax(out, dim = 1)
 
-        self.log({"train_loss" : loss, "train_acc" : acc})
+        loss = self.criterion(out, y.float())
+        # acc = self.acc(preds, y.float())
+
+        self.log("train_loss", loss)
         
-        return {"loss": loss, "predictions": out, "labels": y, "acc" : acc}
+        return {"loss": loss, "predictions": out, "labels": y}
         
     def validation_step(self, valid_batch, batch_idx):
         x_input_ids, x_token_type_ids, x_attention_mask, y = valid_batch
@@ -99,10 +100,13 @@ class MultiLabelModel(pl.LightningModule):
         out = self(input_ids = x_input_ids,
                    token_type_ids = x_token_type_ids,
                    attention_mask = x_attention_mask)
+
+        # preds = torch.argmax(out, dim = 1)
         
         loss = self.criterion(out.cpu(), y.float().cpu())
-        acc = self.acc(out, y.float().cpu())
-        self.log({"val_loss" : loss, "val_acc" : acc})
+
+        # acc = self.acc(preds, y.float().cpu())
+        self.log("val_loss", loss)
         
         return loss
 
@@ -133,6 +137,8 @@ class MultiLabelModel(pl.LightningModule):
 
         for i, name in enumerate(self.labels):
             auroc = AUROC(num_classes=len(self.labels))
+            # acc = Accuracy(num_classes=len(self.labels), average="micro")
+            # class_acc = acc(predictions[:, i], labels[:, i])
             class_roc_auc = auroc(predictions[:, i], labels[:, i])
             # results.append(class_roc_auc)
             print(f"{name} \t: {class_roc_auc}")
