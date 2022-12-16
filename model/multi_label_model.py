@@ -12,8 +12,7 @@ from sklearn.metrics import classification_report
 from transformers import BertModel
 
 from torchmetrics import AUROC
-from torchmetrics import classification as tc
-from torchmetrics.classification import MultilabelAccuracy
+from torchmetrics import MultilabelAccuracy
 
 class MultiLabelModel(pl.LightningModule):
     def __init__(self,  
@@ -35,7 +34,7 @@ class MultiLabelModel(pl.LightningModule):
         random.seed(43)
 
         self.criterion = nn.BCELoss()
-        self.acc = tc.MultilabelAccuracy(num_classes=num_classes, average="micro")
+        self.acc = MultilabelAccuracy(num_classes=num_classes, average="micro")
 
         ks = 3
 
